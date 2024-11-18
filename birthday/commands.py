@@ -42,13 +42,13 @@ class BirthdayCommands(MixinMeta):
     @commands.guild_only()  # type:ignore
     @commands.before_invoke(setup_check)  # type:ignore
     @commands.hybrid_group(aliases=["bday"])
-    async def birthday(self, ctx: commands.Context):
-        """Set and manage your birthday."""
+    async def anniversary(self, ctx: commands.Context):
+        """Set and manage your anniversary."""
 
     @birthday.command(aliases=["add"])
     async def set(self, ctx: commands.Context, *, birthday: BirthdayConverter):
         """
-        Set your birthday.
+        Set your Server anniversary.
 
         You can optionally add in the year, if you are happy to share this.
 
@@ -68,11 +68,11 @@ class BirthdayCommands(MixinMeta):
         # year as 1 means year not specified
 
         if birthday.year != 1 and birthday.year < MIN_BDAY_YEAR:
-            await ctx.send(f"I'm sorry, but I can't set your birthday to before {MIN_BDAY_YEAR}.")
+            await ctx.send(f"I'm sorry, but I can't set your anniversary to before {MIN_BDAY_YEAR}.")
             return
 
         if birthday > datetime.datetime.utcnow():
-            await ctx.send("You can't be born in the future!")
+            await ctx.send("You can't join the server in the future!")
             return
 
         async with self.config.member(ctx.author).birthday() as bday:
@@ -85,11 +85,11 @@ class BirthdayCommands(MixinMeta):
         else:
             str_bday = birthday.strftime("%B %d, %Y")
 
-        await ctx.send(f"Your birthday has been set as {str_bday}.")
+        await ctx.send(f"Your anniversary has been set as {str_bday}.")
 
     @birthday.command(aliases=["delete", "del"])
     async def remove(self, ctx: commands.Context):
-        """Remove your birthday."""
+        """Remove your anniversary."""
         # guild only check in group
         if TYPE_CHECKING:
             assert isinstance(ctx.author, discord.Member)
@@ -111,15 +111,15 @@ class BirthdayCommands(MixinMeta):
             return
 
         await self.config.member(ctx.author).birthday.set({})
-        await ctx.send("Your birthday has been removed.")
+        await ctx.send("Your anniversary has been removed.")
 
     @birthday.command()
     async def upcoming(self, ctx: commands.Context, days: int = 7):
-        """View upcoming birthdays, defaults to 7 days.
+        """View upcoming Server Anniversaries, defaults to 7 days.
 
         **Examples:**
-        - `[p]birthday upcoming` - default of 7 days
-        - `[p]birthday upcoming 14` - 14 days
+        - `[p]anniversary upcoming` - default of 7 days
+        - `[p]anniversary upcoming 14` - 14 days
         """
         # guild only check in group
         if TYPE_CHECKING:
@@ -189,12 +189,12 @@ class BirthdayCommands(MixinMeta):
         log.trace("bdays parsed: %s", parsed_bdays)
 
         if len(parsed_bdays) == 0:
-            await ctx.send(f"No upcoming birthdays in the next {days} days.")
+            await ctx.send(f"No upcoming anniversaries in the next {days} days.")
             return
 
         sorted_parsed_bdays = sorted(parsed_bdays.items(), key=lambda x: x[0])
 
-        embed = discord.Embed(title="Upcoming Birthdays", colour=await ctx.embed_colour())
+        embed = discord.Embed(title="Upcoming Anniversaries", colour=await ctx.embed_colour())
 
         if len(sorted_parsed_bdays) > 25:
             embed.description = "Too many days to display. I've had to stop at 25."
@@ -222,9 +222,9 @@ class BirthdayAdminCommands(MixinMeta):
     @commands.admin_or_permissions(manage_guild=True)
     async def bdset(self, ctx: commands.Context):
         """
-        Birthday management commands for admins.
+        Anniversary management commands for admins.
 
-        Looking to set your own birthday? Use `[p]birthday set` or `[p]bday set`.
+        Looking to set your own anniversary? Use `[p]anniversary set`.
         """
 
     @commands.bot_has_permissions(manage_roles=True)
@@ -269,12 +269,12 @@ class BirthdayAdminCommands(MixinMeta):
                 table.add_row(
                     "Required role",
                     req_role.name
-                    + ". Only users with this role can set their birthday and have it announced.",
+                    + ". Only users with this role can set their anniversary and have it announced.",
                 )
             else:
                 table.add_row(
                     "Required role",
-                    "Not set. All users can set their birthday and have it announced.",
+                    "Not set. All users can set their anniversary and have it announced.",
                 )
 
             message_w_year = conf["message_w_year"] or "No message set"
@@ -288,7 +288,7 @@ class BirthdayAdminCommands(MixinMeta):
         if (error := channel is None) or (error := channel_perm_check(ctx.me, channel)):
             if isinstance(error, bool):
                 error = "Channel deleted."
-            warnings += warning(error + " You won't get birthday notifications.\n")
+            warnings += warning(error + " You won't get anniversary notifications.\n")
 
         final_table = no_colour_rich_markup(table)
         message = (
@@ -304,7 +304,7 @@ class BirthdayAdminCommands(MixinMeta):
     @bdset.command()
     async def time(self, ctx: commands.Context, *, time: TimeConverter):
         """
-        Set the time of day for the birthday message.
+        Set the time of day for the anniversary message.
 
         Minutes are ignored.
 
@@ -331,7 +331,7 @@ class BirthdayAdminCommands(MixinMeta):
                 conf["setup_state"] += 1
 
         m = (
-            "Time set! I'll send the birthday message and update the birthday role at"
+            "Time set! I'll send the anniversary message and update the anniversary role at"
             f" {time.strftime('%H:%M')} UTC."
         )
 
