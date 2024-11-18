@@ -4,7 +4,7 @@ from discord import Member, Role
 from discord.abc import GuildChannel
 
 
-def format_bday_message(message: str, author: Member, new_age: int | None = None) -> str:
+def format_aniv_message(message: str, author: Member, new_age: int | None = None) -> str:
     """Format the anniversary message.
 
     Parameters

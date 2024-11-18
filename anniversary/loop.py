@@ -8,7 +8,7 @@ from redbot.core import commands
 from redbot.core.utils import AsyncIter
 
 from .abc import MixinMeta
-from .utils import channel_perm_check, format_bday_message, role_perm_check
+from .utils import channel_perm_check, format_aniv_message, role_perm_check
 from .vexutils import get_vex_logger
 
 log = get_vex_logger(__name__)
@@ -188,10 +188,10 @@ class AnniversaryLoop(MixinMeta):
                     )
                     continue
 
-                proper_bday_dt = datetime.datetime(
+                proper_aniv_dt = datetime.datetime(
                     year=anniversary["year"] or 1, month=anniversary["month"], day=anniversary["day"]
                 )
-                this_year_bday_dt = proper_bday_dt.replace(year=today_dt.year) + hour_td
+                this_year_aniv_dt = proper_aniv_dt.replace(year=today_dt.year) + hour_td
 
                 if required_role and required_role not in member.roles:
                     log.trace(
@@ -201,8 +201,8 @@ class AnniversaryLoop(MixinMeta):
                     )
                     continue
 
-                if start <= this_year_bday_dt < end:  # anniversary is today
-                    anniversary_members[member] = proper_bday_dt
+                if start <= this_year_aniv_dt < end:  # anniversary is today
+                    anniversary_members[member] = proper_aniv_dt
 
             role = guild.get_role(all_settings[guild.id]["role_id"])
             if role is None:
@@ -233,7 +233,7 @@ class AnniversaryLoop(MixinMeta):
                     if dt.year == 1:
                         await self.send_announcement(
                             channel,
-                            format_bday_message(all_settings[guild.id]["message_wo_year"], member),
+                            format_aniv_message(all_settings[guild.id]["message_wo_year"], member),
                             all_settings[guild.id]["allow_role_mention"],
                         )
 
@@ -241,7 +241,7 @@ class AnniversaryLoop(MixinMeta):
                         age = today_dt.year - dt.year
                         await self.send_announcement(
                             channel,
-                            format_bday_message(
+                            format_aniv_message(
                                 all_settings[guild.id]["message_w_year"], member, age
                             ),
                             all_settings[guild.id]["allow_role_mention"],

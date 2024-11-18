@@ -9,7 +9,7 @@ from redbot.core.bot import Red
 from redbot.core.utils.chat_formatting import box, warning
 
 from ..consts import MAX_BDAY_MSG_LEN
-from ..utils import format_bday_message
+from ..utils import format_anniversary_message
 
 
 class SetupView(discord.ui.View):
@@ -102,7 +102,7 @@ class SetupModal(discord.ui.Modal):
             return
 
         try:
-            format_bday_message(self.message_w_year.value, interaction.user, 1)
+            format_anniversary_message(self.message_w_year.value, interaction.user, 1)
         except KeyError as e:
             await interaction.response.send_message(
                 warning(
@@ -115,7 +115,7 @@ class SetupModal(discord.ui.Modal):
             return
 
         try:
-            format_bday_message(self.message_wo_year.value, interaction.user)
+            format_anniversary_message(self.message_wo_year.value, interaction.user)
         except KeyError as e:
             await interaction.response.send_message(
                 warning(

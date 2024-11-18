@@ -18,7 +18,7 @@ from .abc import MixinMeta
 from .components.setup import SetupView
 from .consts import MAX_BDAY_MSG_LEN, MIN_BDAY_YEAR
 from .converters import AnniversaryConverter, TimeConverter
-from .utils import channel_perm_check, format_bday_message, role_perm_check
+from .utils import channel_perm_check, format_aniv_message, role_perm_check
 from .vexutils import get_vex_logger, no_colour_rich_markup
 from .vexutils.button_pred import wait_for_yes_no
 
@@ -41,7 +41,7 @@ class AnniversaryCommands(MixinMeta):
 
     @commands.guild_only()  # type:ignore
     @commands.before_invoke(setup_check)  # type:ignore
-    @commands.hybrid_group(aliases=["bday"])
+    @commands.hybrid_group(aliases=["aniv"])
     async def anniversary(self, ctx: commands.Context):
         """Set and manage your anniversary."""
 
@@ -55,11 +55,11 @@ class AnniversaryCommands(MixinMeta):
         If you use a date in the format xx/xx/xx or xx-xx-xx MM-DD-YYYY is assumed.
 
         **Examples:**
-        - `[p]bday set 24th September`
-        - `[p]bday set 24th Sept 2002`
-        - `[p]bday set 9/24/2002`
-        - `[p]bday set 9-24-2002`
-        - `[p]bday set 9-24`
+        - `[p]aniv set 24th September`
+        - `[p]aniv set 24th Sept 2002`
+        - `[p]aniv set 9/24/2002`
+        - `[p]aniv set 9-24-2002`
+        - `[p]aniv set 9-24`
         """
         # guild only check in group
         if TYPE_CHECKING:
@@ -75,17 +75,17 @@ class AnniversaryCommands(MixinMeta):
             await ctx.send("You can't join the server in the future!")
             return
 
-        async with self.config.member(ctx.author).anniversary() as bday:
-            bday["year"] = anniversary.year if anniversary.year != 1 else None
-            bday["month"] = anniversary.month
-            bday["day"] = anniversary.day
+        async with self.config.member(ctx.author).anniversary() as aniv:
+            aniv["year"] = anniversary.year if anniversary.year != 1 else None
+            aniv["month"] = anniversary.month
+            aniv["day"] = anniversary.day
 
         if anniversary.year == 1:
-            str_bday = anniversary.strftime("%B %d")
+            str_aniv = anniversary.strftime("%B %d")
         else:
-            str_bday = anniversary.strftime("%B %d, %Y")
+            str_aniv = anniversary.strftime("%B %d, %Y")
 
-        await ctx.send(f"Your anniversary has been set as {str_bday}.")
+        await ctx.send(f"Your anniversary has been set as {str_aniv}.")
 
     @anniversary.command(aliases=["delete", "del"])
     async def remove(self, ctx: commands.Context):
@@ -134,9 +134,9 @@ class AnniversaryCommands(MixinMeta):
 
         all_anniversarys: dict[int, dict[str, dict]] = await self.config.all_members(ctx.guild)
 
-        log.trace("raw data for all bdays: %s", all_anniversarys)
+        log.trace("raw data for all anivs: %s", all_anniversarys)
 
-        parsed_bdays: dict[int, list[str]] = defaultdict(list)
+        parsed_anivs: dict[int, list[str]] = defaultdict(list)
         number_day_mapping: dict[int, str] = {}
 
         async for member_id, member_data in AsyncIter(all_anniversarys.items(), steps=50):
@@ -153,7 +153,7 @@ class AnniversaryCommands(MixinMeta):
             )
 
             if today_dt.month == anniversary_dt.month and today_dt.day == anniversary_dt.day:
-                parsed_bdays[0].append(
+                parsed_anivs[0].append(
                     member.mention
                     + (
                         ""
@@ -164,43 +164,43 @@ class AnniversaryCommands(MixinMeta):
                 number_day_mapping[0] = "Today"
                 continue
 
-            this_year_bday = anniversary_dt.replace(year=today_dt.year)
-            next_year_bday = anniversary_dt.replace(year=today_dt.year + 1)
-            next_anniversary_dt = this_year_bday if this_year_bday > today_dt else next_year_bday
+            this_year_aniv = anniversary_dt.replace(year=today_dt.year)
+            next_year_aniv = anniversary_dt.replace(year=today_dt.year + 1)
+            next_anniversary_dt = this_year_aniv if this_year_aniv > today_dt else next_year_aniv
 
             diff = next_anniversary_dt - today_dt
             if diff.days > days:
                 continue
 
-            next_bday_year = (
+            next_aniv_year = (
                 today_dt.year if today_dt.year == next_anniversary_dt.year else today_dt.year + 1
             )
 
-            parsed_bdays[diff.days].append(
+            parsed_anivs[diff.days].append(
                 member.mention
                 + (
                     ""
                     if anniversary_dt.year == 1
-                    else (f" will turn {next_bday_year - anniversary_dt.year}")
+                    else (f" will turn {next_aniv_year - anniversary_dt.year}")
                 )
             )
             number_day_mapping[diff.days] = next_anniversary_dt.strftime("%B %d")
 
-        log.trace("bdays parsed: %s", parsed_bdays)
+        log.trace("anivs parsed: %s", parsed_anivs)
 
-        if len(parsed_bdays) == 0:
+        if len(parsed_anivs) == 0:
             await ctx.send(f"No upcoming anniversaries in the next {days} days.")
             return
 
-        sorted_parsed_bdays = sorted(parsed_bdays.items(), key=lambda x: x[0])
+        sorted_parsed_anivs = sorted(parsed_anivs.items(), key=lambda x: x[0])
 
         embed = discord.Embed(title="Upcoming Anniversaries", colour=await ctx.embed_colour())
 
-        if len(sorted_parsed_bdays) > 25:
+        if len(sorted_parsed_anivs) > 25:
             embed.description = "Too many days to display. I've had to stop at 25."
-            sorted_parsed_bdays = sorted_parsed_bdays[:25]
+            sorted_parsed_anivs = sorted_parsed_anivs[:25]
 
-        for day, members in sorted_parsed_bdays:
+        for day, members in sorted_parsed_anivs:
             embed.add_field(name=number_day_mapping.get(day), value="\n".join(members))
 
         await ctx.send(embed=embed)
@@ -373,7 +373,7 @@ class AnniversaryAdminCommands(MixinMeta):
             )
 
         try:
-            format_bday_message(message, ctx.author, 1)
+            format_aniv_message(message, ctx.author, 1)
         except KeyError as e:
             await ctx.send(
                 f"You have a placeholder `{{{e.args[0]}}}` that is invalid. You can only include"
@@ -389,7 +389,7 @@ class AnniversaryAdminCommands(MixinMeta):
 
         await ctx.send("Message set. Here's how it will look:")
         await ctx.send(
-            format_bday_message(message, ctx.author),
+            format_aniv_message(message, ctx.author),
             allowed_mentions=discord.AllowedMentions(users=True),
         )
 
@@ -422,7 +422,7 @@ class AnniversaryAdminCommands(MixinMeta):
             )
 
         try:
-            format_bday_message(message, ctx.author, 1)
+            format_aniv_message(message, ctx.author, 1)
         except KeyError as e:
             await ctx.send(
                 f"You have a placeholder `{{{e.args[0]}}}` that is invalid. You can only include"
@@ -438,7 +438,7 @@ class AnniversaryAdminCommands(MixinMeta):
 
         await ctx.send("Message set. Here's how it will look, if you're turning 20:")
         await ctx.send(
-            format_bday_message(message, ctx.author, 20),
+            format_aniv_message(message, ctx.author, 20),
             allowed_mentions=discord.AllowedMentions(users=True),
         )
 
@@ -527,17 +527,17 @@ class AnniversaryAdminCommands(MixinMeta):
             await ctx.send("You can't be born in the future!")
             return
 
-        async with self.config.member(user).anniversary() as bday:
-            bday["year"] = anniversary.year if anniversary.year != 1 else None
-            bday["month"] = anniversary.month
-            bday["day"] = anniversary.day
+        async with self.config.member(user).anniversary() as aniv:
+            aniv["year"] = anniversary.year if anniversary.year != 1 else None
+            aniv["month"] = anniversary.month
+            aniv["day"] = anniversary.day
 
         if anniversary.year == 1:
-            str_bday = anniversary.strftime("%B %d")
+            str_aniv = anniversary.strftime("%B %d")
         else:
-            str_bday = anniversary.strftime("%B %d, %Y")
+            str_aniv = anniversary.strftime("%B %d, %Y")
 
-        await ctx.send(f"{user.name}'s anniversary has been set as {str_bday}.")
+        await ctx.send(f"{user.name}'s anniversary has been set as {str_aniv}.")
 
     @anset.command()
     async def forceremove(self, ctx: commands.Context, user: discord.Member):
@@ -593,7 +593,7 @@ class AnniversaryAdminCommands(MixinMeta):
                 await ctx.send("Cancelling.")
                 return
 
-        bday_conf = Config.get_conf(
+        aniv_conf = Config.get_conf(
             None,
             int(
                 "402907344791714442305425963449545260864366380186701260757993729164269683092560089"
@@ -602,7 +602,7 @@ class AnniversaryAdminCommands(MixinMeta):
             cog_name="Anniversary",
         )
 
-        for guild_id, guild_data in (await bday_conf.all_guilds()).items():
+        for guild_id, guild_data in (await aniv_conf.all_guilds()).items():
             guild = self.bot.get_guild(int(guild_id))
             if guild is None:
                 continue
@@ -616,8 +616,8 @@ class AnniversaryAdminCommands(MixinMeta):
             }
             await self.config.guild(guild).set_raw(value=new_data)
 
-        bday_conf.init_custom("GUILD_DATE", 2)
-        all_member_data = await bday_conf.custom("GUILD_DATE").all()  # type:ignore
+        aniv_conf.init_custom("GUILD_DATE", 2)
+        all_member_data = await aniv_conf.custom("GUILD_DATE").all()  # type:ignore
         if "backup" in all_member_data:
             del all_member_data["backup"]
 
