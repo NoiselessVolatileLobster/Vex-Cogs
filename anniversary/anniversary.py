@@ -8,8 +8,8 @@ from redbot.core.bot import Red
 from redbot.core.config import Config
 
 from .abc import CompositeMetaClass
-from .commands import BirthdayAdminCommands, BirthdayCommands
-from .loop import BirthdayLoop
+from .commands import AnniversaryAdminCommands, AnniversaryCommands
+from .loop import AnniversaryLoop
 from .vexutils import format_help, format_info, get_vex_logger
 from .vexutils.loop import VexLoop
 
