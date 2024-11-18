@@ -5,7 +5,7 @@ from discord.abc import GuildChannel
 
 
 def format_bday_message(message: str, author: Member, new_age: int | None = None) -> str:
-    """Format the birthday message.
+    """Format the anniversary message.
 
     Parameters
     ----------
@@ -13,7 +13,7 @@ def format_bday_message(message: str, author: Member, new_age: int | None = None
         Unformatted message from Config
 
     role : discord.Role
-        Birthday role
+        Anniversary role
 
     Returns
     -------
@@ -27,7 +27,7 @@ def format_bday_message(message: str, author: Member, new_age: int | None = None
 
 
 def role_perm_check(me: Member, role: Role) -> str:
-    """Check if I have the correct permissions for this to be the Birthday role.
+    """Check if I have the correct permissions for this to be the Anniversary role.
 
     Parameters
     ----------
@@ -44,7 +44,7 @@ def role_perm_check(me: Member, role: Role) -> str:
     """
     if me.top_role.position <= role.position:
         return (
-            "I don't have the required role position. Make sure my role is above the birthday"
+            "I don't have the required role position. Make sure my role is above the anniversary"
             " role."
         )
     if me.guild_permissions.manage_roles is False:
@@ -53,7 +53,7 @@ def role_perm_check(me: Member, role: Role) -> str:
 
 
 def channel_perm_check(me: Member, channel: GuildChannel) -> str:
-    """Check if I have the correct permissions for this to be the Birthday channel.
+    """Check if I have the correct permissions for this to be the Anniversary channel.
 
     Parameters
     ----------

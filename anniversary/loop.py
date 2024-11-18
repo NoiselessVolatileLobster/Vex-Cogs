@@ -19,12 +19,12 @@ class AnniversaryLoop(MixinMeta):
     @commands.is_owner()
     async def anloopdebug(self, ctx: commands.Context) -> None:
         """
-        Sends the current state of the Birthday loop.
+        Sends the current state of the Anniversary loop.
         """
         await ctx.send(embed=self.loop_meta.get_debug_embed())
 
     async def anniversary_role_manager(self) -> None:
-        """Birthday role manager to handle coros, so they don't slow
+        """Anniversary role manager to handle coros, so they don't slow
         down the main loop. Remember d.py handles ratelimits."""
         while True:
             try:
@@ -48,9 +48,9 @@ class AnniversaryLoop(MixinMeta):
                 error,
             )
             return
-        log.trace("Queued birthday role add for %s in guild %s", member.id, member.guild.id)
+        log.trace("Queued anniversary role add for %s in guild %s", member.id, member.guild.id)
         self.coro_queue.put_nowait(
-            member.add_roles(role, reason="Birthday cog - birthday starts today")
+            member.add_roles(role, reason="Anniversary cog - anniversary starts today")
         )
 
     async def remove_role(self, me: discord.Member, member: discord.Member, role: discord.Role):
@@ -62,9 +62,9 @@ class AnniversaryLoop(MixinMeta):
                 error,
             )
             return
-        log.trace("Queued birthday role remove for %s in guild %s", member.id, member.guild.id)
+        log.trace("Queued anniversary role remove for %s in guild %s", member.id, member.guild.id)
         self.coro_queue.put_nowait(
-            member.remove_roles(role, reason="Birthday cog - birthday ends today")
+            member.remove_roles(role, reason="Anniversary cog - anniversary ends today")
         )
 
     async def send_announcement(
@@ -79,7 +79,7 @@ class AnniversaryLoop(MixinMeta):
             )
             return
 
-        log.trace("Queued birthday announcement for %s in guild %s", channel.id, channel.guild.id)
+        log.trace("Queued anniversary announcement for %s in guild %s", channel.id, channel.guild.id)
         log.trace("Message: %s", message)
         self.coro_queue.put_nowait(
             channel.send(
@@ -91,22 +91,22 @@ class AnniversaryLoop(MixinMeta):
         )
 
     async def anniversary_loop(self) -> NoReturn:
-        """The Birthday loop. This coro will run forever."""
+        """The Anniversary loop. This coro will run forever."""
         await self.bot.wait_until_red_ready()
         await self.ready.wait()
 
-        log.verbose("Birthday task started")
+        log.verbose("Anniversary task started")
 
         # 1st loop
         try:
             self.loop_meta.iter_start()
-            await self._update_birthdays()
+            await self._update_anniversarys()
             self.loop_meta.iter_finish()
             log.verbose("Initial loop has finished")
         except Exception as e:
             self.loop_meta.iter_error(e)
             log.exception(
-                "Something went wrong in the Birthday loop. The loop will try again in an hour."
+                "Something went wrong in the Anniversary loop. The loop will try again in an hour."
                 "Please report this and the below information to Vexed.",
                 exc_info=e,
             )
@@ -124,25 +124,25 @@ class AnniversaryLoop(MixinMeta):
             log.verbose("Loop has started next iteration")
             try:
                 self.loop_meta.iter_start()
-                await self._update_birthdays()
+                await self._update_anniversarys()
                 self.loop_meta.iter_finish()
                 log.verbose("Loop has finished")
             except Exception as e:
                 self.loop_meta.iter_error(e)
                 log.exception(
-                    "Something went wrong in the Birthday loop. The loop will try again "
+                    "Something went wrong in the Anniversary loop. The loop will try again "
                     "in an hour. Please report this and the below information to Vexed.",
                     exc_info=e,
                 )
 
             await self.loop_meta.sleep_until_next()
 
-    async def _update_birthdays(self):
-        """Update birthdays"""
-        all_birthdays: dict[int, dict[int, dict[str, Any]]] = await self.config.all_members()
+    async def _update_anniversarys(self):
+        """Update anniversarys"""
+        all_anniversarys: dict[int, dict[int, dict[str, Any]]] = await self.config.all_members()
         all_settings: dict[int, dict[str, Any]] = await self.config.all_guilds()
 
-        async for guild_id, guild_data in AsyncIter(all_birthdays.items(), steps=5):
+        async for guild_id, guild_data in AsyncIter(all_anniversarys.items(), steps=5):
             guild: discord.Guild | None = self.bot.get_guild(int(guild_id))
             if guild is None:
                 log.trace("Guild %s is not in cache, skipping", guild_id)
@@ -156,7 +156,7 @@ class AnniversaryLoop(MixinMeta):
                 log.trace("Guild %s is not setup, skipping", guild_id)
                 continue
 
-            birthday_members: dict[discord.Member, datetime.datetime] = {}
+            anniversary_members: dict[discord.Member, datetime.datetime] = {}
 
             hour_td = datetime.timedelta(seconds=all_settings[guild.id]["time_utc_s"])
 
@@ -178,8 +178,8 @@ class AnniversaryLoop(MixinMeta):
             required_role = guild.get_role(all_settings[guild.id].get("required_role"))
 
             async for member_id, data in AsyncIter(guild_data.items(), steps=50):
-                birthday = data["birthday"]
-                if not birthday:  # birthday removed but user remains in config
+                anniversary = data["anniversary"]
+                if not anniversary:  # anniversary removed but user remains in config
                     continue
                 member = guild.get_member(int(member_id))
                 if member is None:
@@ -189,7 +189,7 @@ class AnniversaryLoop(MixinMeta):
                     continue
 
                 proper_bday_dt = datetime.datetime(
-                    year=birthday["year"] or 1, month=birthday["month"], day=birthday["day"]
+                    year=anniversary["year"] or 1, month=anniversary["month"], day=anniversary["day"]
                 )
                 this_year_bday_dt = proper_bday_dt.replace(year=today_dt.year) + hour_td
 
@@ -201,8 +201,8 @@ class AnniversaryLoop(MixinMeta):
                     )
                     continue
 
-                if start <= this_year_bday_dt < end:  # birthday is today
-                    birthday_members[member] = proper_bday_dt
+                if start <= this_year_bday_dt < end:  # anniversary is today
+                    anniversary_members[member] = proper_bday_dt
 
             role = guild.get_role(all_settings[guild.id]["role_id"])
             if role is None:
@@ -224,9 +224,9 @@ class AnniversaryLoop(MixinMeta):
                 )
                 continue
 
-            log.trace("Members with birthdays in guild %s: %s", guild_id, birthday_members)
+            log.trace("Members with anniversarys in guild %s: %s", guild_id, anniversary_members)
 
-            for member, dt in birthday_members.items():
+            for member, dt in anniversary_members.items():
                 if member not in role.members:
                     await self.add_role(guild.me, member, role)
 
@@ -248,7 +248,7 @@ class AnniversaryLoop(MixinMeta):
                         )
 
             for member in role.members:
-                if member not in birthday_members:
+                if member not in anniversary_members:
                     await self.remove_role(guild.me, member, role)
 
             log.trace("Potential updates for %s have been queued", guild_id)

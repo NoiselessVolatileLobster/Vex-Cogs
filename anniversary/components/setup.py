@@ -35,7 +35,7 @@ class SetupView(discord.ui.View):
 
 class SetupModal(discord.ui.Modal):
     message_w_year = discord.ui.TextInput(
-        label="Birthday message with a new age",
+        label="Anniversary message with a new age",
         max_length=MAX_BDAY_MSG_LEN,
         style=discord.TextStyle.long,
         placeholder=(
@@ -45,12 +45,12 @@ class SetupModal(discord.ui.Modal):
     )
 
     message_wo_year = discord.ui.TextInput(
-        label="Birthday message without an age",
+        label="Anniversary message without an age",
         max_length=MAX_BDAY_MSG_LEN,
         style=discord.TextStyle.long,
         placeholder=(
-            "You can use {mention} and {name}\nExample:\n{mention}'s birthday"
-            " is today! Happy Birthday!"
+            "You can use {mention} and {name}\nExample:\n{mention}'s anniversary"
+            " is today! Happy Anniversary!"
         ),
     )
 
@@ -71,7 +71,7 @@ class SetupModal(discord.ui.Modal):
     # )
 
     def __init__(self, bot: Red, config: Config):
-        super().__init__(title="Birthday setup")
+        super().__init__(title="Anniversary setup")
 
         self.bot = bot
         self.config = config
@@ -106,7 +106,7 @@ class SetupModal(discord.ui.Modal):
         except KeyError as e:
             await interaction.response.send_message(
                 warning(
-                    "You birthday message **with year** can only include `{mention}`, `{name}`"
+                    "You anniversary message **with year** can only include `{mention}`, `{name}`"
                     " and `{new_age}`. You can't have anything else in `{}`. You did"
                     f" `{{{e.args[0]}}}` which is invalid.\n\n{get_reminder()}"
                 ),
@@ -119,7 +119,7 @@ class SetupModal(discord.ui.Modal):
         except KeyError as e:
             await interaction.response.send_message(
                 warning(
-                    "You birthday message **without year** can only include `{mention}` and"
+                    "You anniversary message **without year** can only include `{mention}` and"
                     " `{name}`. You can't have anything else in `{}`. You did"
                     f" `{{{e.args[0]}}}` which is invalid.\n\n{get_reminder()}"
                 ),
@@ -139,11 +139,11 @@ class SetupModal(discord.ui.Modal):
 
         if state == 5:
             await interaction.response.send_message(
-                "All set! Users can add their birthday with `birthday set`"
+                "All set! Users can add their anniversary with `anniversary set`"
             )
         else:
             await interaction.response.send_message(
                 "All set, but you're not quite ready yet. Just set up the channel and role with "
-                "`bdset role` and `bdset channel` then birthdays will be sent and assigned. You "
+                "`bdset role` and `bdset channel` then anniversary will be sent and assigned. You "
                 "can check with `bdset settings`"
             )

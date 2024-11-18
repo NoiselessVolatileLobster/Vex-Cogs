@@ -46,7 +46,7 @@ class AnniversaryCommands(MixinMeta):
         """Set and manage your anniversary."""
 
     @anniversary.command(aliases=["add"])
-    async def set(self, ctx: commands.Context, *, birthday: AnniversaryConverter):
+    async def set(self, ctx: commands.Context, *, anniversary: AnniversaryConverter):
         """
         Set your Server anniversary.
 
@@ -67,23 +67,23 @@ class AnniversaryCommands(MixinMeta):
 
         # year as 1 means year not specified
 
-        if birthday.year != 1 and birthday.year < MIN_BDAY_YEAR:
+        if anniversary.year != 1 and anniversary.year < MIN_BDAY_YEAR:
             await ctx.send(f"I'm sorry, but I can't set your anniversary to before {MIN_BDAY_YEAR}.")
             return
 
-        if birthday > datetime.datetime.utcnow():
+        if anniversary > datetime.datetime.utcnow():
             await ctx.send("You can't join the server in the future!")
             return
 
-        async with self.config.member(ctx.author).birthday() as bday:
-            bday["year"] = birthday.year if birthday.year != 1 else None
-            bday["month"] = birthday.month
-            bday["day"] = birthday.day
+        async with self.config.member(ctx.author).anniversary() as bday:
+            bday["year"] = anniversary.year if anniversary.year != 1 else None
+            bday["month"] = anniversary.month
+            bday["day"] = anniversary.day
 
-        if birthday.year == 1:
-            str_bday = birthday.strftime("%B %d")
+        if anniversary.year == 1:
+            str_bday = anniversary.strftime("%B %d")
         else:
-            str_bday = birthday.strftime("%B %d, %Y")
+            str_bday = anniversary.strftime("%B %d, %Y")
 
         await ctx.send(f"Your anniversary has been set as {str_bday}.")
 
@@ -110,7 +110,7 @@ class AnniversaryCommands(MixinMeta):
             await ctx.send("Cancelled.")
             return
 
-        await self.config.member(ctx.author).birthday.set({})
+        await self.config.member(ctx.author).anniversary.set({})
         await ctx.send("Your anniversary has been removed.")
 
     @anniversary.command()
@@ -132,59 +132,59 @@ class AnniversaryCommands(MixinMeta):
 
         today_dt = datetime.datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
 
-        all_birthdays: dict[int, dict[str, dict]] = await self.config.all_members(ctx.guild)
+        all_anniversarys: dict[int, dict[str, dict]] = await self.config.all_members(ctx.guild)
 
-        log.trace("raw data for all bdays: %s", all_birthdays)
+        log.trace("raw data for all bdays: %s", all_anniversarys)
 
         parsed_bdays: dict[int, list[str]] = defaultdict(list)
         number_day_mapping: dict[int, str] = {}
 
-        async for member_id, member_data in AsyncIter(all_birthdays.items(), steps=50):
-            if not member_data["birthday"]:  # birthday removed but user remains in config
+        async for member_id, member_data in AsyncIter(all_anniversarys.items(), steps=50):
+            if not member_data["anniversary"]:  # anniversary removed but user remains in config
                 continue
             member = ctx.guild.get_member(member_id)
             if not isinstance(member, discord.Member):
                 continue
 
-            birthday_dt = datetime.datetime(
-                year=member_data["birthday"]["year"] or 1,
-                month=member_data["birthday"]["month"],
-                day=member_data["birthday"]["day"],
+            anniversary_dt = datetime.datetime(
+                year=member_data["anniversary"]["year"] or 1,
+                month=member_data["anniversary"]["month"],
+                day=member_data["anniversary"]["day"],
             )
 
-            if today_dt.month == birthday_dt.month and today_dt.day == birthday_dt.day:
+            if today_dt.month == anniversary_dt.month and today_dt.day == anniversary_dt.day:
                 parsed_bdays[0].append(
                     member.mention
                     + (
                         ""
-                        if birthday_dt.year == 1
-                        else f" turns {today_dt.year - birthday_dt.year}"
+                        if anniversary_dt.year == 1
+                        else f" turns {today_dt.year - anniversary_dt.year}"
                     )
                 )
                 number_day_mapping[0] = "Today"
                 continue
 
-            this_year_bday = birthday_dt.replace(year=today_dt.year)
-            next_year_bday = birthday_dt.replace(year=today_dt.year + 1)
-            next_birthday_dt = this_year_bday if this_year_bday > today_dt else next_year_bday
+            this_year_bday = anniversary_dt.replace(year=today_dt.year)
+            next_year_bday = anniversary_dt.replace(year=today_dt.year + 1)
+            next_anniversary_dt = this_year_bday if this_year_bday > today_dt else next_year_bday
 
-            diff = next_birthday_dt - today_dt
+            diff = next_anniversary_dt - today_dt
             if diff.days > days:
                 continue
 
             next_bday_year = (
-                today_dt.year if today_dt.year == next_birthday_dt.year else today_dt.year + 1
+                today_dt.year if today_dt.year == next_anniversary_dt.year else today_dt.year + 1
             )
 
             parsed_bdays[diff.days].append(
                 member.mention
                 + (
                     ""
-                    if birthday_dt.year == 1
-                    else (f" will turn {next_bday_year - birthday_dt.year}")
+                    if anniversary_dt.year == 1
+                    else (f" will turn {next_bday_year - anniversary_dt.year}")
                 )
             )
-            number_day_mapping[diff.days] = next_birthday_dt.strftime("%B %d")
+            number_day_mapping[diff.days] = next_anniversary_dt.strftime("%B %d")
 
         log.trace("bdays parsed: %s", parsed_bdays)
 
@@ -211,7 +211,7 @@ class AnniversaryAdminCommands(MixinMeta):
     @commands.is_owner()
     @commands.group(hidden=True)
     async def anniversarydebug(self, ctx: commands.Context):
-        """Birthday debug commands."""
+        """Anniversary debug commands."""
 
     @anniversarydebug.command(name="upcoming")
     async def debug_upcoming(self, ctx: commands.Context):
@@ -339,8 +339,8 @@ class AnniversaryAdminCommands(MixinMeta):
             old_dt = datetime.datetime.utcfromtimestamp(old)
             if time > old_dt and time > datetime.datetime.utcnow():
                 m += (
-                    "\n\nThe time you set is after the time I currently send the birthday message,"
-                    " so the birthday message will be sent for a second time."
+                    "\n\nThe time you set is after the time I currently send the anniversary message,"
+                    " so the anniversary message will be sent for a second time."
                 )
 
         await ctx.send(m)
@@ -359,8 +359,8 @@ class AnniversaryAdminCommands(MixinMeta):
             All the placeholders are optional.
 
         **Examples:**
-        - `[p]bdset msgwithoutyear Happy birthday {mention}!`
-        - `[p]bdset msgwithoutyear {mention}'s birthday is today! Happy birthday {name}.`
+        - `[p]bdset msgwithoutyear Happy anniversary {mention}!`
+        - `[p]bdset msgwithoutyear {mention}'s anniversary is today! Happy anniversary {name}.`
         """
         # group has guild check
         if TYPE_CHECKING:
@@ -408,8 +408,8 @@ class AnniversaryAdminCommands(MixinMeta):
             All the placeholders are optional.
 
         **Examples:**
-        - `[p]bdset msgwithyear {mention} has turned {new_age}, happy birthday!`
-        - `[p]bdset msgwithyear {name} is {new_age} today! Happy birthday {mention}!`
+        - `[p]bdset msgwithyear {mention} has turned {new_age}, happy anniversary!`
+        - `[p]bdset msgwithyear {name} is {new_age} today! Happy anniversary {mention}!`
         """
         # group has guild check
         if TYPE_CHECKING:
@@ -445,10 +445,10 @@ class AnniversaryAdminCommands(MixinMeta):
     @bdset.command()
     async def channel(self, ctx: commands.Context, channel: discord.TextChannel):
         """
-        Set the channel where the birthday message will be sent.
+        Set the channel where the anniversary message will be sent.
 
         **Example:**
-        - `[p]bdset channel #birthdays` - set the channel to #birthdays
+        - `[p]bdset channel #anniversarys` - set the channel to #anniversarys
         """
         # group has guild check
         if TYPE_CHECKING:
@@ -474,13 +474,13 @@ class AnniversaryAdminCommands(MixinMeta):
     @bdset.command()
     async def role(self, ctx: commands.Context, *, role: discord.Role):
         """
-        Set the role that will be given to the user on their birthday.
+        Set the role that will be given to the user on their anniversary.
 
         You can give the exact name or a mention.
 
         **Example:**
-        - `[p]bdset role @Birthday` - set the role to @Birthday
-        - `[p]bdset role Birthday` - set the role to @Birthday without a mention
+        - `[p]bdset role @Anniversary` - set the role to @Anniversary
+        - `[p]bdset role Anniversary` - set the role to @Anniversary without a mention
         - `[p]bdset role 418058139913063657` - set the role with an ID
         """
         # group has guild check
@@ -503,51 +503,51 @@ class AnniversaryAdminCommands(MixinMeta):
 
     @bdset.command()
     async def forceset(
-        self, ctx: commands.Context, user: discord.Member, *, birthday: AnniversaryConverter
+        self, ctx: commands.Context, user: discord.Member, *, anniversary: AnniversaryConverter
     ):
         """
-        Force-set a specific user's birthday.
+        Force-set a specific user's anniversary.
 
         You can @ mention any user or type out their exact name. If you're typing out a name with
         spaces, make sure to put quotes around it (`"`).
 
         **Examples:**
-        - `[p]bdset set @User 1-1-2000` - set the birthday of `@User` to 1/1/2000
-        - `[p]bdset set User 1/1` - set the birthday of `@User` to 1/1/2000
-        - `[p]bdset set "User with spaces" 1-1` - set the birthday of `@User with spaces`
+        - `[p]bdset set @User 1-1-2000` - set the anniversary of `@User` to 1/1/2000
+        - `[p]bdset set User 1/1` - set the anniversary of `@User` to 1/1/2000
+        - `[p]bdset set "User with spaces" 1-1` - set the anniversary of `@User with spaces`
             to 1/1
-        - `[p]bdset set 354125157387344896 1/1/2000` - set the birthday of `354125157387344896`
+        - `[p]bdset set 354125157387344896 1/1/2000` - set the anniversary of `354125157387344896`
             to 1/1/2000
         """
-        if birthday.year != 1 and birthday.year < MIN_BDAY_YEAR:
-            await ctx.send(f"I'm sorry, but I can't set a birthday to before {MIN_BDAY_YEAR}.")
+        if anniversary.year != 1 and anniversary.year < MIN_BDAY_YEAR:
+            await ctx.send(f"I'm sorry, but I can't set a anniversary to before {MIN_BDAY_YEAR}.")
             return
 
-        if birthday > datetime.datetime.utcnow():
+        if anniversary > datetime.datetime.utcnow():
             await ctx.send("You can't be born in the future!")
             return
 
-        async with self.config.member(user).birthday() as bday:
-            bday["year"] = birthday.year if birthday.year != 1 else None
-            bday["month"] = birthday.month
-            bday["day"] = birthday.day
+        async with self.config.member(user).anniversary() as bday:
+            bday["year"] = anniversary.year if anniversary.year != 1 else None
+            bday["month"] = anniversary.month
+            bday["day"] = anniversary.day
 
-        if birthday.year == 1:
-            str_bday = birthday.strftime("%B %d")
+        if anniversary.year == 1:
+            str_bday = anniversary.strftime("%B %d")
         else:
-            str_bday = birthday.strftime("%B %d, %Y")
+            str_bday = anniversary.strftime("%B %d, %Y")
 
-        await ctx.send(f"{user.name}'s birthday has been set as {str_bday}.")
+        await ctx.send(f"{user.name}'s anniversary has been set as {str_bday}.")
 
     @bdset.command()
     async def forceremove(self, ctx: commands.Context, user: discord.Member):
-        """Force-remove a user's birthday."""
+        """Force-remove a user's anniversary."""
         # guild only check in group
         if TYPE_CHECKING:
             assert isinstance(user, discord.Member)
             assert ctx.guild is not None
 
-        m = await ctx.send(f"Are you sure? `{user.name}`'s birthday will be removed.")
+        m = await ctx.send(f"Are you sure? `{user.name}`'s anniversary will be removed.")
         start_adding_reactions(m, ReactionPredicate.YES_OR_NO_EMOJIS)
         check = ReactionPredicate.yes_or_no(m, ctx.author)  # type:ignore
 
@@ -562,14 +562,14 @@ class AnniversaryAdminCommands(MixinMeta):
             await ctx.send("Cancelled.")
             return
 
-        await self.config.member(user).birthday.set({})
-        await ctx.send(f"{user.name}'s birthday has been removed.")
+        await self.config.member(user).anniversary.set({})
+        await ctx.send(f"{user.name}'s anniversary has been removed.")
 
     @commands.is_owner()
     @bdset.command()
     async def zemigrate(self, ctx: commands.Context):
         """
-        Import data from ZeCogs'/flare's fork of Birthdays cog
+        Import data from ZeCogs'/flare's fork of Anniversarys cog
         """
         # group has guild check
         if TYPE_CHECKING:
@@ -610,7 +610,7 @@ class AnniversaryAdminCommands(MixinMeta):
                 "channel_id": guild_data.get("channel", None),
                 "role_id": guild_data.get("role", None),
                 "message_w_year": "{mention} is now **{new_age} years old**. :tada:",
-                "message_wo_year": "It's {mention}'s birthday today! :tada:",
+                "message_wo_year": "It's {mention}'s anniversary today! :tada:",
                 "time_utc_s": 0,  # UTC midnight
                 "setup_state": 5,
             }
@@ -642,7 +642,7 @@ class AnniversaryAdminCommands(MixinMeta):
                         "month": dt.month,
                         "day": dt.day,
                     }
-                    await self.config.member_from_ids(guild_id, user_id).birthday.set(new_data)
+                    await self.config.member_from_ids(guild_id, user_id).anniversary.set(new_data)
 
         await ctx.send(
             "All set. You can now configure the messages and time to send with other commands"
@@ -652,11 +652,11 @@ class AnniversaryAdminCommands(MixinMeta):
     @bdset.command()
     async def rolemention(self, ctx: commands.Context, value: bool):
         """
-        Choose whether or not to allow role mentions in birthday messages.
+        Choose whether or not to allow role mentions in anniversary messages.
 
         By default role mentions are suppressed.
 
-        To allow role mentions in the birthday message, run `[p]bdset rolemention true`.
+        To allow role mentions in the anniversary message, run `[p]bdset rolemention true`.
         Disable them with `[p]bdset rolemention true`
         """
         await self.config.guild(ctx.guild).allow_role_mention.set(value)
@@ -668,15 +668,15 @@ class AnniversaryAdminCommands(MixinMeta):
     @bdset.command()
     async def requiredrole(self, ctx: commands.Context, *, role: Union[discord.Role, None] = None):
         """
-        Set a role that users must have to set their birthday.
+        Set a role that users must have to set their anniversary.
 
         If users don't have this role then they can't set their
-        birthday and they won't get a role or message on their birthday.
+        anniversary and they won't get a role or message on their anniversary.
 
-        If they set their birthday and then lose the role, their birthday
+        If they set their anniversary and then lose the role, their anniversary
         will be stored but will be ignored until they regain the role.
 
-        You can purge birthdays of users who no longer have the role
+        You can purge anniversarys of users who no longer have the role
         with `[p]bdset requiredrolepurge`.
 
         If no role is provided, the requirement is removed.
@@ -693,12 +693,12 @@ class AnniversaryAdminCommands(MixinMeta):
             if current_role:
                 await self.config.guild(ctx.guild).require_role.clear()
                 await ctx.send(
-                    "The required role has been removed. Birthdays can be set by anyone and will "
+                    "The required role has been removed. Anniversarys can be set by anyone and will "
                     "always be announced."
                 )
             else:
                 await ctx.send(
-                    "No role is current set. Birthdays can be set by anyone and will always be "
+                    "No role is current set. Anniversarys can be set by anyone and will always be "
                     "announced."
                 )
                 await ctx.send_help()
@@ -706,18 +706,18 @@ class AnniversaryAdminCommands(MixinMeta):
             await self.config.guild(ctx.guild).require_role.set(role.id)
             await ctx.send(
                 f"The required role has been set to {role.name}. Users without this role no longer"
-                " have their birthday announced."
+                " have their anniversary announced."
             )
 
     @bdset.command(name="requiredrolepurge")
     async def requiredrole_purge(self, ctx: commands.Context):
-        """Remove birthdays from the database for users who no longer have the required role.
+        """Remove anniversarys from the database for users who no longer have the required role.
 
-        If you have a required role set, this will remove birthdays for users who no longer have it
+        If you have a required role set, this will remove anniversarys for users who no longer have it
 
         Uses without the role are temporarily ignored until they regain the role.
 
-        This command allows you to presently remove their birthday data from the database.
+        This command allows you to presently remove their anniversary data from the database.
         """
         # group has guild check
         if TYPE_CHECKING:
@@ -747,7 +747,7 @@ class AnniversaryAdminCommands(MixinMeta):
                 continue
 
             if role not in member.roles:
-                await self.config.member_from_ids(ctx.guild.id, member_id).birthday.clear()
+                await self.config.member_from_ids(ctx.guild.id, member_id).anniversary.clear()
                 purged += 1
 
         await ctx.send(f"Purged {purged} users from the database.")
@@ -755,7 +755,7 @@ class AnniversaryAdminCommands(MixinMeta):
     @bdset.command()
     async def stop(self, ctx: commands.Context):
         """
-        Stop the cog from sending birthday messages and giving roles in the server.
+        Stop the cog from sending anniversary messages and giving roles in the server.
         """
         # group has guild check
         if TYPE_CHECKING:
@@ -773,7 +773,7 @@ class AnniversaryAdminCommands(MixinMeta):
         confirm = await wait_for_yes_no(
             ctx,
             "I've deleted your configuration. Would you also like to delete the data about when"
-            " users birthdays are?",
+            " users anniversarys are?",
         )
         if confirm is False:
             await ctx.send("I'll keep that.")

@@ -24,9 +24,9 @@ class Anniversary(
     metaclass=CompositeMetaClass,
 ):
     """
-    Birthdays
+    Anniversarys
 
-    Set yours and get a message and role on your birthday!
+    Set yours and get a message and role on your anniversary!
     """
 
     __version__ = "1.2.2"
@@ -49,16 +49,16 @@ class Anniversary(
             require_role=False,
             allow_role_mention=False,
         )
-        self.config.register_member(birthday={"year": 1, "month": 1, "day": 1})
+        self.config.register_member(anniversary={"year": 1, "month": 1, "day": 1})
 
-        self.loop_meta = VexLoop("Birthday loop", 60 * 60)
+        self.loop_meta = VexLoop("Anniversary loop", 60 * 60)
         self.loop = self.bot.loop.create_task(self.anniversary_loop())
         self.role_manager = self.bot.loop.create_task(self.anniversary_role_manager())
         self.coro_queue = asyncio.Queue()
 
         self.ready = asyncio.Event()
 
-        bot.add_dev_env_value("birthday", lambda _: self)
+        bot.add_dev_env_value("anniversary", lambda _: self)
 
     def format_help_for_context(self, ctx: commands.Context) -> str:
         """Thanks Sinbad."""
@@ -69,7 +69,7 @@ class Anniversary(
         self.role_manager.cancel()
 
         try:
-            self.bot.remove_dev_env_value("birthday")
+            self.bot.remove_dev_env_value("anniversary")
         except KeyError:
             pass
 
