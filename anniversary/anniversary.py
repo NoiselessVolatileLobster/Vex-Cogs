@@ -105,8 +105,8 @@ class Anniversary(
 
         log.trace("anniversary ready")
 
-    @commands.command(hidden=True, aliases=["aniinfo"])
-    async def aniinfo(self, ctx: commands.Context):
+    @commands.command(hidden=True, aliases=["anivinfo"])
+    async def aninfo(self, ctx: commands.Context):
         await ctx.send(await format_info(ctx, self.qualified_name, self.__version__))
 
     async def check_if_setup(self, guild: discord.Guild) -> bool:
