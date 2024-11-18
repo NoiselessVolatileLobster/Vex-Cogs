@@ -15,6 +15,6 @@ with open(Path(__file__).parent / "info.json", encoding="utf8") as fp:
 
 
 async def setup(bot: Red) -> None:
-    cog = Birthday(bot)
+    cog = Anniversary(bot)
     await out_of_date_check("anniversary", cog.__version__)
     await bot.add_cog(cog)
