@@ -12,9 +12,9 @@
         8,
         1
     ],
-    "name": "Birthday",
+    "name": "Anniversary",
     "requirements": [],
-    "short": "Birthday cog with customisable roles, messages and times.",
+    "short": "Anniversary cog with customisable roles, messages and times.",
     "tags": [
         "birthday",
         "birthdays",
