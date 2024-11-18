@@ -17,7 +17,7 @@ from rich.table import Table  # type:ignore
 from .abc import MixinMeta
 from .components.setup import SetupView
 from .consts import MAX_BDAY_MSG_LEN, MIN_BDAY_YEAR
-from .converters import BirthdayConverter, TimeConverter
+from .converters import AnniversaryConverter, TimeConverter
 from .utils import channel_perm_check, format_bday_message, role_perm_check
 from .vexutils import get_vex_logger, no_colour_rich_markup
 from .vexutils.button_pred import wait_for_yes_no
@@ -25,7 +25,7 @@ from .vexutils.button_pred import wait_for_yes_no
 log = get_vex_logger(__name__)
 
 
-class BirthdayCommands(MixinMeta):
+class AnniversaryCommands(MixinMeta):
     async def setup_check(self, ctx: commands.Context) -> None:
         if ctx.guild is None:
             raise CheckFailure("This command can only be used in a server.")
@@ -46,7 +46,7 @@ class BirthdayCommands(MixinMeta):
         """Set and manage your anniversary."""
 
     @anniversary.command(aliases=["add"])
-    async def set(self, ctx: commands.Context, *, birthday: BirthdayConverter):
+    async def set(self, ctx: commands.Context, *, birthday: AnniversaryConverter):
         """
         Set your Server anniversary.
 
@@ -206,7 +206,7 @@ class BirthdayCommands(MixinMeta):
         await ctx.send(embed=embed)
 
 
-class BirthdayAdminCommands(MixinMeta):
+class AnniversaryAdminCommands(MixinMeta):
     @commands.guild_only()
     @commands.is_owner()
     @commands.group(hidden=True)
@@ -503,7 +503,7 @@ class BirthdayAdminCommands(MixinMeta):
 
     @bdset.command()
     async def forceset(
-        self, ctx: commands.Context, user: discord.Member, *, birthday: BirthdayConverter
+        self, ctx: commands.Context, user: discord.Member, *, birthday: AnniversaryConverter
     ):
         """
         Force-set a specific user's birthday.
@@ -599,7 +599,7 @@ class BirthdayAdminCommands(MixinMeta):
                 "402907344791714442305425963449545260864366380186701260757993729164269683092560089"
                 "8581468610241444437790345710548026575313281401238342705437492295956906331"
             ),
-            cog_name="Birthdays",
+            cog_name="Anniversary",
         )
 
         for guild_id, guild_data in (await bday_conf.all_guilds()).items():

@@ -38,9 +38,9 @@ class MixinMeta(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def birthday_loop(self) -> None:
+    async def anniversary_loop(self) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    async def birthday_role_manager(self) -> None:
+    async def anniversary_role_manager(self) -> None:
         raise NotImplementedError

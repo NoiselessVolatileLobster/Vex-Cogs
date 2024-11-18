@@ -10,11 +10,11 @@ log = get_vex_logger(__name__)
 
 
 if TYPE_CHECKING:
-    BirthdayConverter = datetime.datetime
+    AnniversaryConverter = datetime.datetime
     TimeConverter = datetime.datetime
 else:
 
-    class BirthdayConverter(Converter):
+    class AnniversaryConverter(Converter):
         async def convert(self, ctx: Context, argument: str) -> datetime.datetime:
             log.trace("attempting to parse date %s", argument)
             try:

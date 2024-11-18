@@ -18,9 +18,9 @@ log = get_vex_logger(__name__)
 
 class Anniversary(
     commands.Cog,
-    BirthdayLoop,
-    BirthdayCommands,
-    BirthdayAdminCommands,
+    AnniversaryLoop,
+    AnniversaryCommands,
+    AnniversaryAdminCommands,
     metaclass=CompositeMetaClass,
 ):
     """
@@ -105,8 +105,8 @@ class Anniversary(
 
         log.trace("anniversary ready")
 
-    @commands.command(hidden=True, aliases=["birthdayinfo"])
-    async def bdayinfo(self, ctx: commands.Context):
+    @commands.command(hidden=True, aliases=["aninfo"])
+    async def aninfo(self, ctx: commands.Context):
         await ctx.send(await format_info(ctx, self.qualified_name, self.__version__))
 
     async def check_if_setup(self, guild: discord.Guild) -> bool:
