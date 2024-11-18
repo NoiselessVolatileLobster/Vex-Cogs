@@ -16,7 +16,7 @@ from .vexutils.loop import VexLoop
 log = get_vex_logger(__name__)
 
 
-class Birthday(
+class Anniversary(
     commands.Cog,
     BirthdayLoop,
     BirthdayCommands,
