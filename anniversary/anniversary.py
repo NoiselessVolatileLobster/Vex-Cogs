@@ -52,8 +52,8 @@ class Anniversary(
         self.config.register_member(birthday={"year": 1, "month": 1, "day": 1})
 
         self.loop_meta = VexLoop("Birthday loop", 60 * 60)
-        self.loop = self.bot.loop.create_task(self.birthday_loop())
-        self.role_manager = self.bot.loop.create_task(self.birthday_role_manager())
+        self.loop = self.bot.loop.create_task(self.anniversary_loop())
+        self.role_manager = self.bot.loop.create_task(self.anniversary_role_manager())
         self.coro_queue = asyncio.Queue()
 
         self.ready = asyncio.Event()
