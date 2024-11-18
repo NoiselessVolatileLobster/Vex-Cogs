@@ -35,7 +35,7 @@ class AnniversaryCommands(MixinMeta):
         if not await self.check_if_setup(ctx.guild):
             await ctx.send(
                 "This command is not available until the cog has been setup. "
-                f"Get an admin to use `{ctx.clean_prefix}bdset interactive` to get started."
+                f"Get an admin to use `{ctx.clean_prefix}anset interactive` to get started."
             )
             raise CheckFailure("cog needs setup")
 
@@ -220,7 +220,7 @@ class AnniversaryAdminCommands(MixinMeta):
     @commands.group()
     @commands.guild_only()  # type:ignore
     @commands.admin_or_permissions(manage_guild=True)
-    async def bdset(self, ctx: commands.Context):
+    async def anset(self, ctx: commands.Context):
         """
         Anniversary management commands for admins.
 
@@ -228,7 +228,7 @@ class AnniversaryAdminCommands(MixinMeta):
         """
 
     @commands.bot_has_permissions(manage_roles=True)
-    @bdset.command()
+    @anset.command()
     async def interactive(self, ctx: commands.Context):
         """Start interactive setup"""
         # guild only check in group
@@ -237,7 +237,7 @@ class AnniversaryAdminCommands(MixinMeta):
 
         await ctx.send("Click below to start.", view=SetupView(ctx.author, self.bot, self.config))
 
-    @bdset.command()
+    @anset.command()
     async def settings(self, ctx: commands.Context):
         """View your current settings"""
         # group has guild check
@@ -301,7 +301,7 @@ class AnniversaryAdminCommands(MixinMeta):
         )
         await ctx.send(message)
 
-    @bdset.command()
+    @anset.command()
     async def time(self, ctx: commands.Context, *, time: TimeConverter):
         """
         Set the time of day for the anniversary message.
@@ -309,9 +309,9 @@ class AnniversaryAdminCommands(MixinMeta):
         Minutes are ignored.
 
         **Examples:**
-        - `[p]bdset time 7:00` - set the time to 7:00AM UTC
-        - `[p]bdset time 12AM` - set the time to midnight UTC
-        - `[p]bdset time 3PM` - set the time to 3:00PM UTC
+        - `[p]anset time 7:00` - set the time to 7:00AM UTC
+        - `[p]anset time 12AM` - set the time to midnight UTC
+        - `[p]anset time 3PM` - set the time to 3:00PM UTC
         """
         # group has guild check
         if TYPE_CHECKING:
@@ -345,12 +345,12 @@ class AnniversaryAdminCommands(MixinMeta):
 
         await ctx.send(m)
 
-    @bdset.command()
+    @anset.command()
     async def msgwithoutyear(self, ctx: commands.Context, *, message: str):
         """
         Set the message to send when the user did not provide a year.
 
-        If you would like to mention a role, you will need to run `[p]bdset rolemention true`.
+        If you would like to mention a role, you will need to run `[p]anset rolemention true`.
 
         **Placeholders:**
         - `{name}` - the user's name
@@ -359,8 +359,8 @@ class AnniversaryAdminCommands(MixinMeta):
             All the placeholders are optional.
 
         **Examples:**
-        - `[p]bdset msgwithoutyear Happy anniversary {mention}!`
-        - `[p]bdset msgwithoutyear {mention}'s anniversary is today! Happy anniversary {name}.`
+        - `[p]anset msgwithoutyear Happy anniversary {mention}!`
+        - `[p]anset msgwithoutyear {mention}'s anniversary is today! Happy anniversary {name}.`
         """
         # group has guild check
         if TYPE_CHECKING:
@@ -393,12 +393,12 @@ class AnniversaryAdminCommands(MixinMeta):
             allowed_mentions=discord.AllowedMentions(users=True),
         )
 
-    @bdset.command()
+    @anset.command()
     async def msgwithyear(self, ctx: commands.Context, *, message: str):
         """
         Set the message to send when the user did provide a year.
 
-        If you would like to mention a role, you will need to run `[p]bdset rolemention true`
+        If you would like to mention a role, you will need to run `[p]anset rolemention true`
 
         **Placeholders:**
         - `{name}` - the user's name
@@ -408,8 +408,8 @@ class AnniversaryAdminCommands(MixinMeta):
             All the placeholders are optional.
 
         **Examples:**
-        - `[p]bdset msgwithyear {mention} has turned {new_age}, happy anniversary!`
-        - `[p]bdset msgwithyear {name} is {new_age} today! Happy anniversary {mention}!`
+        - `[p]anset msgwithyear {mention} has turned {new_age}, happy anniversary!`
+        - `[p]anset msgwithyear {name} is {new_age} today! Happy anniversary {mention}!`
         """
         # group has guild check
         if TYPE_CHECKING:
@@ -442,13 +442,13 @@ class AnniversaryAdminCommands(MixinMeta):
             allowed_mentions=discord.AllowedMentions(users=True),
         )
 
-    @bdset.command()
+    @anset.command()
     async def channel(self, ctx: commands.Context, channel: discord.TextChannel):
         """
         Set the channel where the anniversary message will be sent.
 
         **Example:**
-        - `[p]bdset channel #anniversarys` - set the channel to #anniversarys
+        - `[p]anset channel #anniversarys` - set the channel to #anniversarys
         """
         # group has guild check
         if TYPE_CHECKING:
@@ -471,7 +471,7 @@ class AnniversaryAdminCommands(MixinMeta):
         await ctx.send(f"Channel set to {channel.mention}.")
 
     @commands.bot_has_permissions(manage_roles=True)
-    @bdset.command()
+    @anset.command()
     async def role(self, ctx: commands.Context, *, role: discord.Role):
         """
         Set the role that will be given to the user on their anniversary.
@@ -479,9 +479,9 @@ class AnniversaryAdminCommands(MixinMeta):
         You can give the exact name or a mention.
 
         **Example:**
-        - `[p]bdset role @Anniversary` - set the role to @Anniversary
-        - `[p]bdset role Anniversary` - set the role to @Anniversary without a mention
-        - `[p]bdset role 418058139913063657` - set the role with an ID
+        - `[p]anset role @Anniversary` - set the role to @Anniversary
+        - `[p]anset role Anniversary` - set the role to @Anniversary without a mention
+        - `[p]anset role 418058139913063657` - set the role with an ID
         """
         # group has guild check
         if TYPE_CHECKING:
@@ -501,7 +501,7 @@ class AnniversaryAdminCommands(MixinMeta):
 
         await ctx.send(f"Role set to {role.name}.")
 
-    @bdset.command()
+    @anset.command()
     async def forceset(
         self, ctx: commands.Context, user: discord.Member, *, anniversary: AnniversaryConverter
     ):
@@ -512,11 +512,11 @@ class AnniversaryAdminCommands(MixinMeta):
         spaces, make sure to put quotes around it (`"`).
 
         **Examples:**
-        - `[p]bdset set @User 1-1-2000` - set the anniversary of `@User` to 1/1/2000
-        - `[p]bdset set User 1/1` - set the anniversary of `@User` to 1/1/2000
-        - `[p]bdset set "User with spaces" 1-1` - set the anniversary of `@User with spaces`
+        - `[p]anset set @User 1-1-2000` - set the anniversary of `@User` to 1/1/2000
+        - `[p]anset set User 1/1` - set the anniversary of `@User` to 1/1/2000
+        - `[p]anset set "User with spaces" 1-1` - set the anniversary of `@User with spaces`
             to 1/1
-        - `[p]bdset set 354125157387344896 1/1/2000` - set the anniversary of `354125157387344896`
+        - `[p]anset set 354125157387344896 1/1/2000` - set the anniversary of `354125157387344896`
             to 1/1/2000
         """
         if anniversary.year != 1 and anniversary.year < MIN_BDAY_YEAR:
@@ -539,7 +539,7 @@ class AnniversaryAdminCommands(MixinMeta):
 
         await ctx.send(f"{user.name}'s anniversary has been set as {str_bday}.")
 
-    @bdset.command()
+    @anset.command()
     async def forceremove(self, ctx: commands.Context, user: discord.Member):
         """Force-remove a user's anniversary."""
         # guild only check in group
@@ -566,7 +566,7 @@ class AnniversaryAdminCommands(MixinMeta):
         await ctx.send(f"{user.name}'s anniversary has been removed.")
 
     @commands.is_owner()
-    @bdset.command()
+    @anset.command()
     async def zemigrate(self, ctx: commands.Context):
         """
         Import data from ZeCogs'/flare's fork of Anniversarys cog
@@ -646,18 +646,18 @@ class AnniversaryAdminCommands(MixinMeta):
 
         await ctx.send(
             "All set. You can now configure the messages and time to send with other commands"
-            " under `[p]bdset`, if you would like to change it from ZeLarp's. This is per-guild."
+            " under `[p]anset`, if you would like to change it from ZeLarp's. This is per-guild."
         )
 
-    @bdset.command()
+    @anset.command()
     async def rolemention(self, ctx: commands.Context, value: bool):
         """
         Choose whether or not to allow role mentions in anniversary messages.
 
         By default role mentions are suppressed.
 
-        To allow role mentions in the anniversary message, run `[p]bdset rolemention true`.
-        Disable them with `[p]bdset rolemention true`
+        To allow role mentions in the anniversary message, run `[p]anset rolemention true`.
+        Disable them with `[p]anset rolemention true`
         """
         await self.config.guild(ctx.guild).allow_role_mention.set(value)
         if value:
@@ -665,7 +665,7 @@ class AnniversaryAdminCommands(MixinMeta):
         else:
             await ctx.send("Role mentions have been disabled.")
 
-    @bdset.command()
+    @anset.command()
     async def requiredrole(self, ctx: commands.Context, *, role: Union[discord.Role, None] = None):
         """
         Set a role that users must have to set their anniversary.
@@ -677,16 +677,16 @@ class AnniversaryAdminCommands(MixinMeta):
         will be stored but will be ignored until they regain the role.
 
         You can purge anniversarys of users who no longer have the role
-        with `[p]bdset requiredrolepurge`.
+        with `[p]anset requiredrolepurge`.
 
         If no role is provided, the requirement is removed.
 
-        View the current role with `[p]bdset settings`.
+        View the current role with `[p]anset settings`.
 
         **Example:**
-        - `[p]bdset requiredrole @Subscribers` - set the required role to @Subscribers
-        - `[p]bdset requiredrole Subscribers` - set the required role to @Subscribers
-        - `[p]bdset requiredrole` - remove the required role
+        - `[p]anset requiredrole @Subscribers` - set the required role to @Subscribers
+        - `[p]anset requiredrole Subscribers` - set the required role to @Subscribers
+        - `[p]anset requiredrole` - remove the required role
         """
         if role is None:
             current_role = await self.config.guild(ctx.guild).require_role()
@@ -709,7 +709,7 @@ class AnniversaryAdminCommands(MixinMeta):
                 " have their anniversary announced."
             )
 
-    @bdset.command(name="requiredrolepurge")
+    @anset.command(name="requiredrolepurge")
     async def requiredrole_purge(self, ctx: commands.Context):
         """Remove anniversarys from the database for users who no longer have the required role.
 
@@ -752,7 +752,7 @@ class AnniversaryAdminCommands(MixinMeta):
 
         await ctx.send(f"Purged {purged} users from the database.")
 
-    @bdset.command()
+    @anset.command()
     async def stop(self, ctx: commands.Context):
         """
         Stop the cog from sending anniversary messages and giving roles in the server.

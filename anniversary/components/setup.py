@@ -144,6 +144,6 @@ class SetupModal(discord.ui.Modal):
         else:
             await interaction.response.send_message(
                 "All set, but you're not quite ready yet. Just set up the channel and role with "
-                "`bdset role` and `bdset channel` then anniversary will be sent and assigned. You "
-                "can check with `bdset settings`"
+                "`anset role` and `anset channel` then anniversary will be sent and assigned. You "
+                "can check with `anset settings`"
             )
