@@ -14,7 +14,7 @@ from .vexutils import get_vex_logger
 log = get_vex_logger(__name__)
 
 
-class BirthdayLoop(MixinMeta):
+class AnniversaryLoop(MixinMeta):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def anloopdebug(self, ctx: commands.Context) -> None:
