@@ -45,7 +45,7 @@ class BirthdayCommands(MixinMeta):
     async def anniversary(self, ctx: commands.Context):
         """Set and manage your anniversary."""
 
-    @birthday.command(aliases=["add"])
+    @anniversary.command(aliases=["add"])
     async def set(self, ctx: commands.Context, *, birthday: BirthdayConverter):
         """
         Set your Server anniversary.
@@ -87,7 +87,7 @@ class BirthdayCommands(MixinMeta):
 
         await ctx.send(f"Your anniversary has been set as {str_bday}.")
 
-    @birthday.command(aliases=["delete", "del"])
+    @anniversary.command(aliases=["delete", "del"])
     async def remove(self, ctx: commands.Context):
         """Remove your anniversary."""
         # guild only check in group
@@ -113,7 +113,7 @@ class BirthdayCommands(MixinMeta):
         await self.config.member(ctx.author).birthday.set({})
         await ctx.send("Your anniversary has been removed.")
 
-    @birthday.command()
+    @anniversary.command()
     async def upcoming(self, ctx: commands.Context, days: int = 7):
         """View upcoming Server Anniversaries, defaults to 7 days.
 
