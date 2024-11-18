@@ -17,13 +17,13 @@ log = get_vex_logger(__name__)
 class BirthdayLoop(MixinMeta):
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def bdloopdebug(self, ctx: commands.Context) -> None:
+    async def anloopdebug(self, ctx: commands.Context) -> None:
         """
         Sends the current state of the Birthday loop.
         """
         await ctx.send(embed=self.loop_meta.get_debug_embed())
 
-    async def birthday_role_manager(self) -> None:
+    async def anniversary_role_manager(self) -> None:
         """Birthday role manager to handle coros, so they don't slow
         down the main loop. Remember d.py handles ratelimits."""
         while True:
@@ -90,7 +90,7 @@ class BirthdayLoop(MixinMeta):
             )
         )
 
-    async def birthday_loop(self) -> NoReturn:
+    async def anniversary_loop(self) -> NoReturn:
         """The Birthday loop. This coro will run forever."""
         await self.bot.wait_until_red_ready()
         await self.ready.wait()

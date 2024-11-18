@@ -210,10 +210,10 @@ class BirthdayAdminCommands(MixinMeta):
     @commands.guild_only()
     @commands.is_owner()
     @commands.group(hidden=True)
-    async def birthdaydebug(self, ctx: commands.Context):
+    async def anniversarydebug(self, ctx: commands.Context):
         """Birthday debug commands."""
 
-    @birthdaydebug.command(name="upcoming")
+    @anniversarydebug.command(name="upcoming")
     async def debug_upcoming(self, ctx: commands.Context):
         await ctx.send_interactive(pagify(str(await self.config.all_members(ctx.guild))), "py")
 
