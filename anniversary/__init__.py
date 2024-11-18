@@ -7,7 +7,7 @@ from redbot.core import VersionInfo
 from redbot.core.bot import Red
 
 from . import vexutils
-from .anniversary import Anniversary
+from .birthday import Birthday
 from .vexutils.meta import out_of_date_check
 
 with open(Path(__file__).parent / "info.json", encoding="utf8") as fp:
@@ -15,6 +15,6 @@ with open(Path(__file__).parent / "info.json", encoding="utf8") as fp:
 
 
 async def setup(bot: Red) -> None:
-    cog = Anniversary(bot)
+    cog = Birthday(bot)
     await out_of_date_check("anniversary", cog.__version__)
     await bot.add_cog(cog)
